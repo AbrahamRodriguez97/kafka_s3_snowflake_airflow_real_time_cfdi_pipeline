@@ -1,0 +1,25 @@
+CREATE OR REPLACE SCHEMA BAZ_BILLING_DB.SILVER;
+
+-- Tabla de Encabezados (Comprobantes)
+-- Basado en el modelo: _Fecha, _Folio, _Total, etc.
+CREATE OR REPLACE TABLE BAZ_BILLING_DB.SILVER.FACTURAS_ENCABEZADO AS
+SELECT
+    RAW_JSON:Comprobante:_UUID::STRING AS ID_FACTURA,
+    RAW_JSON:Comprobante:_Version::STRING AS VERSION,
+    RAW_JSON:Comprobante:_Fecha::TIMESTAMP_NTZ AS FECHA,
+    RAW_JSON:Comprobante:_Total::NUMERIC(18,2) AS TOTAL,
+    RAW_JSON:Comprobante:Emisor:_Nombre::STRING AS EMISOR_NOMBRE,
+    RAW_JSON:Comprobante:Receptor:_Nombre::STRING AS RECEPTOR_NOMBRE,
+    INGESTED_AT AS FECHA_CARGA
+FROM BAZ_BILLING_DB.BRONZE.STG_FACTURACION_RAW;
+
+-- Tabla de Conceptos (Aplanado de Arreglos)
+CREATE OR REPLACE TABLE BAZ_BILLING_DB.SILVER.FACTURAS_DETALLE AS
+SELECT
+    RAW_JSON:Comprobante:_UUID::STRING AS ID_FACTURA,
+    f.value:_Descripcion::STRING AS DESCRIPCION,
+    f.value:_Cantidad::NUMBER AS CANTIDAD,
+    f.value:_ValorUnitario::NUMERIC(18,4) AS VALOR_UNITARIO,
+    f.value:_Importe::NUMERIC(18,2) AS IMPORTE
+FROM BAZ_BILLING_DB.BRONZE.STG_FACTURACION_RAW,
+LATERAL FLATTEN(input => RAW_JSON:Comprobante:Conceptos:Concepto) f;
