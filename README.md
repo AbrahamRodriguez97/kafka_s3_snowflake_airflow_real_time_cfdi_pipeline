@@ -1,6 +1,8 @@
 # Real-Time CFDI 4.0 Data Pipeline: S3 to Snowflake via Airflow
 
-<img: arquitectura>
+<img width="975" height="385" alt="image" src="https://github.com/user-attachments/assets/73d1ebb7-2c2a-4dab-a2cf-8c60cfce968a" />
+
+
 
 ## Introducción
 **Nombre del Cliente:**  Grupo Salinas
@@ -44,24 +46,29 @@ El flujo de datos sigue el estándar de la industria para procesamiento de datos
 
 * **Ingesta & Streaming:** Un generador simula ventas en tiempo real, enviando eventos JSON a Apache Kafka.
 
-<img: kafka>
+<img width="1058" height="199" alt="image" src="https://github.com/user-attachments/assets/2ada0ac7-5d60-4fea-acab-92c2ad76c3b6" />
+
 
 * **Staging (Bronze):** Los datos se depositan en un bucket de Amazon S3 para su almacenamiento persistente de bajo costo.
 
-<img: s3 aws>
+<img width="1033" height="768" alt="image" src="https://github.com/user-attachments/assets/5dc7cb36-5734-4bbc-910c-5f3c89be634c" />
+
 
 * **Data Warehousing (Snowflake):**  
     Capa Bronze: Almacenamiento de datos crudos (Semi-estructurados) mediante COPY INTO.
 
-    <img: snowflake bronze>
+<img width="1064" height="395" alt="image" src="https://github.com/user-attachments/assets/3e6b8ccc-a770-46f8-aa41-bd0773d43e25" />
 
-    Capa Silver: Limpieza, tipado y estructuración de datos mediante lógica de MERGE (Upsert).
 
-    <img: snowflake silver>
+Capa Silver: Limpieza, tipado y estructuración de datos mediante lógica de MERGE (Upsert).
+
+<img width="1052" height="124" alt="image" src="https://github.com/user-attachments/assets/6dbf45ff-56c6-4e6d-991e-dae2277c40ea" />
+
 
 * **Orquestación:** Apache Airflow (Dockerizado) gestiona las dependencias, reintentos y el flujo de trabajo programado.
 
-<img: load/transform>
+<img width="1304" height="252" alt="image" src="https://github.com/user-attachments/assets/8ae2eb5c-19e0-4374-ad58-c922817aef94" />
+
 
 ## Retos de ingeniería y soluciones
 
