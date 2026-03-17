@@ -1,0 +1,35 @@
+-- 1. Crear el esquema de transformación
+CREATE OR REPLACE SCHEMA BAZ_BILLING_DB.SILVER;
+
+-- 2. Crear la tabla de Encabezados (Header)
+-- Extraemos los campos raíz del CFDI 4.0
+-- MERGE para la tabla de Encabezados
+MERGE INTO BAZ_BILLING_DB.SILVER.FACTURAS_ENCABEZADO AS target
+USING (
+    SELECT
+        RAW_JSON:Comprobante:_UUID::STRING AS ID_FACTURA,
+        RAW_JSON:Comprobante:_Version::STRING AS VERSION_CFDI,
+        RAW_JSON:Comprobante:_Fecha::TIMESTAMP_NTZ AS FECHA_EMISION,
+        RAW_JSON:Comprobante:_TipoDeComprobante::STRING AS TIPO_COMPROBANTE,
+        RAW_JSON:Comprobante:_Total::NUMERIC(18,2) AS TOTAL_FACTURA,
+        RAW_JSON:Comprobante:Emisor:_Nombre::STRING AS EMISOR_NOMBRE,
+        RAW_JSON:Comprobante:Emisor:_Rfc::STRING AS EMISOR_RFC,
+        RAW_JSON:Comprobante:Receptor:_Nombre::STRING AS RECEPTOR_NOMBRE,
+        RAW_JSON:Comprobante:Receptor:_Rfc::STRING AS RECEPTOR_RFC
+    FROM BAZ_BILLING_DB.BRONZE.STG_FACTURACION_RAW
+) AS source
+ON target.ID_FACTURA = source.ID_FACTURA
+WHEN NOT MATCHED THEN
+    INSERT (ID_FACTURA, VERSION_CFDI, FECHA_EMISION, TIPO_COMPROBANTE, TOTAL_FACTURA, EMISOR_NOMBRE, EMISOR_RFC, RECEPTOR_NOMBRE, RECEPTOR_RFC, FECHA_PROCESAMIENTO)
+    VALUES (source.ID_FACTURA, source.VERSION_CFDI, source.FECHA_EMISION, source.TIPO_COMPROBANTE, source.TOTAL_FACTURA, source.EMISOR_NOMBRE, source.EMISOR_RFC, source.RECEPTOR_NOMBRE, source.RECEPTOR_RFC, CURRENT_TIMESTAMP());
+
+-- 3. Crear la tabla de Detalles (Line Items)
+CREATE OR REPLACE TABLE BAZ_BILLING_DB.SILVER.FACTURAS_DETALLE AS
+SELECT
+    RAW_JSON:Comprobante:_UUID::STRING AS ID_FACTURA,
+    c.value:_Descripcion::STRING AS DESCRIPCION_PRODUCTO,
+    c.value:_Cantidad::NUMBER AS CANTIDAD,
+    c.value:_ValorUnitario::NUMERIC(18,4) AS PRECIO_UNITARIO,
+    c.value:_Importe::NUMERIC(18,2) AS IMPORTE_CONCEPTO
+FROM BAZ_BILLING_DB.BRONZE.STG_FACTURACION_RAW,
+LATERAL FLATTEN(input => RAW_JSON:Comprobante:Conceptos:Concepto) c;
