@@ -1,7 +1,6 @@
 # Real-Time CFDI 4.0 Data Pipeline: S3 to Snowflake via Airflow
 
-<img width="975" height="385" alt="image" src="https://github.com/user-attachments/assets/73d1ebb7-2c2a-4dab-a2cf-8c60cfce968a" />
-
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/40acd6aa-61b1-478c-a0c4-f3f4e9b51c82" />
 
 
 ## Introducción
