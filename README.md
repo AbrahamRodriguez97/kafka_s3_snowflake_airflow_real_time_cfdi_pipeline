@@ -1,7 +1,6 @@
 # Real-Time CFDI 4.0 Data Pipeline: S3 to Snowflake via Airflow
 
-<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/40acd6aa-61b1-478c-a0c4-f3f4e9b51c82" />
-
+<img width="1407" height="768" alt="image" src="https://github.com/user-attachments/assets/f812bdab-c48a-4326-9aaf-fcd8e97867d1" />
 
 ## Introducción
 **Nombre del Cliente:**  Grupo Salinas
